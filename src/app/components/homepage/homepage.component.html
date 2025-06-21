@@ -1,37 +1,131 @@
-<div class="min-h-screen bg-gray-50">
-  <!-- Navbar -->
-  <nav class="bg-blue-800 text-white p-4 shadow-md">
-    <div class="max-w-7xl mx-auto">
-      <h1 class="text-xl font-semibold">{{ titleTH }}</h1>
-      <p class="text-sm italic">{{ titleEN }}</p>
-    </div>
-  </nav>
 
-  <!-- Gallery -->
-  <div class="max-w-7xl mx-auto p-4">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">ภาพกิจกรรมโครงการ</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <div *ngFor="let img of images" class="group relative overflow-hidden rounded-lg shadow-lg bg-white">
-        <img
-          [src]="img.url"
-          [alt]="img.title"
-          class="w-full h-60 object-cover transform transition-transform duration-300 group-hover:scale-110"
-          loading="lazy"
-        />
-        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
-            <h3 class="text-lg font-semibold mb-1">{{ img.title }}</h3>
-            <p class="text-sm text-gray-200">{{ img.description }}</p>
-          </div>
+<!-- Mobile Menu -->
+<div class="md:hidden mobile-menu" [ngClass]="{'block': mobileMenuOpen, 'hidden': !mobileMenuOpen}">
+  <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white shadow-lg">
+    <a href="#" class="text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium">หน้าหลัก</a>
+    <a href="#" class="text-gray-500 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium">เกี่ยวกับ</a>
+    <a href="#" class="text-gray-500 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium">กิจกรรม</a>
+    <a href="#" class="text-gray-500 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium">ติดต่อ</a>
+  </div>
+</div>
+
+<!-- Hero Section -->
+<section class="bg-white py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto text-center">
+    <h1 class="text-2xl sm:text-3xl lg:text-5xl font-bold project-title mb-6 leading-tight">
+      โครงการ การส่งเสริมการบริหารจัดการน้ำเพื่อขจัดภัยแล้งและสร้างมูลค่าเพิ่มของผลิตผลทางการเกษตร ของชุมชนอย่างยั่งยืน
+    </h1>
+    <h2 class="text-lg sm:text-xl lg:text-3xl font-semibold text-gray-600 mb-8">
+      Promoting Water Management to Eliminate Drought and Sustainably Adding Value to Community Agricultural Products
+    </h2>
+  </div>
+</section>
+<!-- Image Carousel Section -->
+<section class="py-8 sm:py-16 px-2 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-8 sm:mb-12">ภาพกิจกรรมโครงการ</h2>
+
+    <div class="carousel-container-2 relative rounded-xl overflow-hidden mb-6 sm:mb-8 w-full mx-auto">
+      <div class="carousel-track-2 flex transition-transform duration-700 ease-in-out"
+           [style.transform]="'translateX(-' + (currentSlide * (100 / slidesToShow)) + '%)'">
+        <div class="carousel-slide-2 flex-shrink-0" 
+             [style.width.%]="100 / slidesToShow" 
+             [ngClass]="{
+               'px-1': !isMobile,
+               'px-0': isMobile
+             }"
+             *ngFor="let slide of slides">
+          <img [src]="slide.imageUrl" 
+               alt="Slide image" 
+               class="w-full object-cover rounded-lg"
+               [ngClass]="{
+                 'h-64 sm:h-80 lg:h-64': !isMobile,
+                 'h-64 sm:h-80 lg:h-96': isMobile
+               }" />
         </div>
       </div>
+
+      <!-- Carousel Controls -->
+      <button (click)="previousSlide()" class="carousel-button absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center focus:outline-none">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button (click)="nextSlide()" class="carousel-button absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center focus:outline-none">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+    <!-- Pagination dots สำหรับ carousel ที่1 -->
+   <div class="flex justify-center space-x-2 mb-8 mt-4">
+  <button *ngFor="let dot of getPaginationDots1(); let i = index"
+          (click)="goToSlide(i * slidesToShowCarousel1)"
+          class="w-2 h-2 sm:w-3 sm:h-3 rounded-full focus:outline-none transition-colors duration-300"
+          [ngClass]="getCurrentPaginationIndex1() === i ? 'bg-blue-600' : 'bg-gray-300'">
+  </button>
+</div>
+  </div>
+</section>
+
+<!-- Image Carousel Section2 - Multiple Images -->
+<section class="py-8 sm:py-16 px-2 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-8 sm:mb-12">ภาพกิจกรรมโครงการ (ชุดที่ 2)</h2>
+
+    <div class="carousel-container-2 relative rounded-xl overflow-hidden mb-6 sm:mb-8 w-full mx-auto">
+      <div class="carousel-track-2 flex transition-transform duration-700 ease-in-out"
+           [style.transform]="'translateX(-' + (currentSlide2 * (100 / slidesToShow)) + '%)'">
+        <div class="carousel-slide-2 flex-shrink-0" 
+             [style.width.%]="100 / slidesToShow" 
+             [ngClass]="{
+               'px-1': !isMobile,
+               'px-0': isMobile
+             }"
+             *ngFor="let slide of slides2">
+          <img [src]="slide.imageUrl" 
+               alt="Slide image" 
+               class="w-full object-cover rounded-lg"
+               [ngClass]="{
+                 'h-64 sm:h-80 lg:h-64': !isMobile,
+                 'h-64 sm:h-80 lg:h-96': isMobile
+               }" />
+        </div>
+      </div>
+
+      <!-- Carousel Controls -->
+      <button (click)="previousSlide2()" class="carousel-button absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center focus:outline-none">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button (click)="nextSlide2()" class="carousel-button absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center focus:outline-none">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Pagination dots สำหรับ carousel ที่สอง -->
+    <div class="flex justify-center space-x-2 mb-8" style="margin-top: 10px;">
+      <button *ngFor="let dot of [].constructor(getPaginationLength()); let i = index"
+              (click)="goToSlide2(i * slidesToShow)"
+              class="w-2 h-2 sm:w-3 sm:h-3 rounded-full focus:outline-none transition-colors duration-300"
+              [ngClass]="getCurrentPaginationIndex() === i ? 'bg-blue-600' : 'bg-gray-300'">
+      </button>
     </div>
   </div>
+</section>
 
-  <!-- Footer -->
-  <footer class="bg-gray-800 text-white py-4 mt-8">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-      <p class="text-sm">© 2024 โครงการการส่งเสริมการบริหารจัดการน้ำเพื่อขจัดภัยแล้ง</p>
+<!-- Footer -->
+<footer class="footer-gradient text-white py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto text-center">
+    <div class="mb-4">
+      <p class="text-lg font-semibold mb-2">โครงการการส่งเสริมการบริหารจัดการน้ำเพื่อขจัดภัยแล้งและสร้างมูลค่าเพิ่ม</p>
+      <p class="text-sm opacity-90">Promoting Water Management to Eliminate Drought and Sustainably Adding Value</p>
     </div>
-  </footer>
-</div>
+    <div class="border-t border-white border-opacity-20 pt-4">
+      <p class="text-sm opacity-80">&copy; 2025 โครงการส่งเสริมการบริหารจัดการน้ำ. สงวนลิขสิทธิ์.</p>
+    </div>
+  </div>
+</footer>

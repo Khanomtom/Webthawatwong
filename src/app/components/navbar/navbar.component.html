@@ -1,0 +1,232 @@
+<!-- Navigation Bar -->
+<nav class="bg-white nav-shadow sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center">
+        <h1 class="text-xl font-bold text-black">โครงการน้ำ</h1>
+      </div>
+      <div class="hidden md:flex space-x-4 items-center">
+        <a href="#" 
+           class="nav-link" 
+           [class.text-gray-700]="activeLink === 'home'"
+           [class.inactive]="activeLink !== 'home'"
+           (click)="setActive('home')">หน้าหลัก</a>
+        
+        <!-- Dropdown Menu for โครงการ -->
+        <div class="relative dropdown" 
+             (mouseenter)="showDropdown = true" 
+             (mouseleave)="showDropdown = false"
+            >
+          <a href="#" 
+             class="nav-link" 
+             [class.text-gray-700]="activeLink === 'about'"
+             [class.inactive]="activeLink !== 'about'"
+             (click)="setActive('about')">
+            โครงการ
+            <svg class="ml-1 h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </a>
+          
+          <!-- Dropdown Content -->
+          <div class="dropdown-content" [class.show]="showDropdown">
+            <a *ngFor="let researcher of allProjects" 
+               class="dropdown-item"
+               (click)="goToProject(researcher.Pid)">
+              {{ researcher.name }}
+            </a>
+          </div>
+        </div>
+        
+        <a routerLink="/team"
+           class="nav-link" 
+           [class.text-gray-700]="activeLink === 'team'"
+           [class.inactive]="activeLink !== 'team'"
+           (click)="setActive('team')">ทีมนักวิจัย</a>
+        
+        <!-- Updated Progress Link to open dialog -->
+<!-- <a *ngIf="showResearchUpdate"
+   class="nav-link" 
+   [class.text-gray-700]="activeLink === 'progress'"
+   [class.inactive]="activeLink !== 'progress'"
+   (click)="openResearchDialog()">อัพเดตงานวิจัย</a>
+         -->
+        <!-- Login/Logout Section -->
+        <div class="flex items-center space-x-2 ml-4 border-l border-gray-300 pl-4">
+          <div *ngIf="!isLoggedIn; else loggedInTemplate">
+            <button 
+              (click)="openLoginDialog()"
+              class="login-btn">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+              เข้าสู่ระบบ
+            </button>
+          </div>
+          
+          <ng-template #loggedInTemplate>
+            <div class="flex items-center space-x-3">
+              <div class="user-info">
+                <span class="text-sm font-medium text-gray-700">{{ currentUser?.Username }}</span>
+                <span class="text-xs text-gray-500 block">{{ currentUser?.Type }}</span>
+              </div>
+              <button 
+                (click)="logout()"
+                class="logout-btn">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                ออกจากระบบ
+              </button>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+      
+      <div class="md:hidden">
+        <button (click)="toggleMobileMenu()" class="text-gray-700 hover:text-blue-600 focus:outline-none">
+          <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu (with animation) -->
+<div 
+  class="md:hidden bg-white shadow-lg px-4 py-2"
+  [@toggleMenu]="mobileMenuOpen ? 'open' : 'closed'">
+  <a routerLink=""
+     class="mobile-link" 
+     [class.text-gray-700]="activeLink === 'home'"
+     [class.inactive]="activeLink !== 'home'"
+     (click)="setActive('home'); mobileMenuOpen = false">หน้าหลัก</a>
+  
+  <!-- Mobile Dropdown for โครงการ -->
+  <div class="mobile-dropdown">
+    <a 
+       class="mobile-link flex justify-between items-center" 
+       [class.text-gray-700]="activeLink === 'about'"
+       [class.inactive]="activeLink !== 'about'"
+       (click)="toggleMobileDropdown(); setActive('about')" style="display: flex;">
+      โครงการ
+      <svg class="h-4 w-4" [class.rotate-180]="mobileDropdownOpen" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </a>
+    <div class="mobile-dropdown-content" [class.show]="mobileDropdownOpen">
+      <a *ngFor="let researcher of researchers" 
+         class="mobile-dropdown-item"
+         (click)="goToProject(researcher); mobileMenuOpen = false">
+        {{ researcher }}
+      </a>
+    </div>
+  </div>
+  
+  <a routerLink="/team" 
+     class="mobile-link" 
+     [class.text-gray-700]="activeLink === 'team'"
+     [class.inactive]="activeLink !== 'team'"
+     (click)="setActive('team'); mobileMenuOpen = false">ทีมนักวิจัย</a>
+  
+  <!-- Updated Mobile Progress Link -->
+<!-- <a *ngIf="showResearchUpdate"
+   class="mobile-link" 
+   [class.text-gray-700]="activeLink === 'progress'"
+   [class.inactive]="activeLink !== 'progress'"
+   (click)="openResearchDialog()">อัพเดตงานวิจัย</a> -->
+  
+  <!-- Mobile Login/Logout Section -->
+  <div class="border-t border-gray-200 pt-3 mt-3">
+    <!-- แสดงปุ่ม Login สำหรับ Mobile -->
+    <div *ngIf="!isLoggedIn">
+      <button 
+        (click)="openLoginDialog()"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-base font-medium transition-colors flex items-center justify-center">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+        </svg>
+        เข้าสู่ระบบ
+      </button>
+    </div>
+    
+    <!-- แสดงข้อมูลผู้ใช้และปุ่ม Logout สำหรับ Mobile -->
+    <div *ngIf="isLoggedIn" class="space-y-2">
+      <div class="px-3 py-2 bg-gray-50 rounded-md">
+        <div class="text-sm font-medium text-gray-700">{{ currentUser?.Username }}</div>
+        <div class="text-xs text-gray-500">{{ currentUser?.Type }}</div>
+      </div>
+      <button 
+        (click)="logout()"
+        class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md text-base font-medium transition-colors flex items-center justify-center">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        ออกจากระบบ
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Research Update Dialog -->
+<app-research-update-dialog
+  [isOpen]="showResearchDialog"
+  (closeDialog)="closeResearchDialog()"
+  (formSubmit)="handleFormSubmit($event)">
+</app-research-update-dialog>
+
+<!-- Login Dialog -->
+<div *ngIf="showLoginDialog" class="login-overlay" (click)="closeLoginDialog()">
+  <div class="login-modal" (click)="$event.stopPropagation()">
+    <div class="login-header">
+      <h2 class="text-xl font-bold text-gray-800">เข้าสู่ระบบ</h2>
+      <button (click)="closeLoginDialog()" class="close-btn">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <form (ngSubmit)="onLogin()" class="login-form">
+      <div class="form-group">
+        <label for="username" class="form-label">ชื่อผู้ใช้</label>
+        <input 
+          type="text" 
+          id="username"
+          [(ngModel)]="loginForm.username"
+          name="username"
+          class="form-input"
+          placeholder="กรุณาใส่ชื่อผู้ใช้"
+          required>
+      </div>
+      
+      <div class="form-group">
+        <label for="password" class="form-label">รหัสผ่าน</label>
+        <input 
+          type="password" 
+          id="password"
+          [(ngModel)]="loginForm.password"
+          name="password"
+          class="form-input"
+          placeholder="กรุณาใส่รหัสผ่าน"
+          required>
+      </div>
+      
+      <div *ngIf="loginError" class="error-message">
+        {{ loginError }}
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" (click)="closeLoginDialog()" class="cancel-btn">
+          ยกเลิก
+        </button>
+        <button type="submit" class="submit-btn" [disabled]="isLoggingIn">
+          <span *ngIf="isLoggingIn">กำลังเข้าสู่ระบบ...</span>
+          <span *ngIf="!isLoggingIn">เข้าสู่ระบบ</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
