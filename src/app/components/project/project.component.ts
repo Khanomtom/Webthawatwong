@@ -5,24 +5,15 @@ import { FooterComponent } from '../footer/footer.component';
 import { ResearchUpdateDialogComponent } from "../research-update-dialog/research-update-dialog.component";
 import { NewsUpdateComponent } from "../news-update/news-update.component";
 import { ActivatedRoute } from '@angular/router';
-import { LoginResponse } from '../../model/get_res';
+import { LoginResponse, News, ProjectProgress } from '../../model/get_res';
+import { ApiService } from '../../services/api/api.service';
 
 interface ProjectDetail {
   date: string;
   description: string;
 }
 
-interface NewsItem {
-  title: string;
-  description: string;
-  source: string;
-  date: string;
-  image?: string;
-}
 
-interface SlideImage {
-  imageUrl: string;
-}
 
 @Component({
   selector: 'app-project',
@@ -44,40 +35,61 @@ export class ProjectComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   isLoggingIn = false;
   currentUser: LoginResponse | null = null;
-  pid = 0;
-  slides: SlideImage[] = [
-    {
-      imageUrl:
-        'http://pwmeds.com/image/03bbbb7a-dc49-42c9-b57d-787d902947a4.jpg',
-    },
-    {
-      imageUrl:
-        'http://pwmeds.com/image/0d307183-d52c-43f0-9594-f0df6c6eb9c2.jpg',
-    },
-    {
-      imageUrl:
-        'http://pwmeds.com/image/0e841ef7-0576-419c-a933-ddd10fa35ac5.jpg',
-    },
 
-  ];
-  constructor(private route: ActivatedRoute) {
+  projectProgress: ProjectProgress[] = [];
+ 
+  
+   newsItems: News[] | null | undefined;
+
+
+  constructor(private route: ActivatedRoute,private apiService: ApiService) {
+
     this.checkExistingLogin();
-    this.totalSlides = this.slides.length;
+    this.getProjectById()
     this.checkScreenSize();
 
   }
 
   ngOnInit(): void {
-    const pid = this.route.snapshot.queryParamMap.get('pid');
-    console.log('Project ID from route:', pid );
-    
+    this.getNews()    
     this.startAutoPlay();
   }
 
   ngOnDestroy(): void {
     this.stopAutoPlay();
   }
+  isLoading = false;
 
+getNews(): void {
+  this.isLoading = true;
+  const pid = this.route.snapshot.queryParamMap.get('pid');
+  this.apiService.getNewsByProject(pid).subscribe({
+    next: (data) => {
+      this.newsItems = data && (Array.isArray(data) ? data : [data]) || [];
+      this.isLoading = false;
+    },
+    error: (err) => {
+      console.error('Error loading News:', err);
+      this.newsItems = [];
+      this.isLoading = false;
+    }
+  });
+}
+ getProjectById(): void {
+  const pid = this.route.snapshot.queryParamMap.get('pid');
+  this.apiService.getProjectByID(pid).subscribe({
+    next: (data) => {
+      if (data) {
+        this.projectProgress = Array.isArray(data) ? data : [data];
+        this.totalSlides = this.getAllImages().length; // เพิ่มบรรทัดนี้
+      }
+    },
+    error: (err) => console.error('Error loading project:', err)
+  });
+}
+ getAllImages(): string[] {
+    return this.projectProgress.flatMap(project => project.Images);
+  }
   @HostListener('window:resize')
   onResize() {
     this.checkScreenSize();
@@ -93,18 +105,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.currentSlide = maxSlide;
     }
   }
+nextSlide(): void {
+  const maxSlide = Math.max(0, this.getAllImages().length - this.slidesToShow);
+  this.currentSlide = this.currentSlide < maxSlide ? this.currentSlide + 1 : 0;
+}
 
-  nextSlide(): void {
-    const maxSlide = Math.max(0, this.totalSlides - this.slidesToShowCarousel1);
-    this.currentSlide =
-      this.currentSlide < maxSlide ? this.currentSlide + 1 : 0;
-  }
-
-  previousSlide(): void {
-    const maxSlide = Math.max(0, this.totalSlides - this.slidesToShowCarousel1);
-    this.currentSlide =
-      this.currentSlide > 0 ? this.currentSlide - 1 : maxSlide;
-  }
+previousSlide(): void {
+  const maxSlide = Math.max(0, this.getAllImages().length - this.slidesToShow);
+  this.currentSlide = this.currentSlide > 0 ? this.currentSlide - 1 : maxSlide;
+}
 
   goToSlide(slideIndex: number): void {
     const maxSlide = Math.max(0, this.totalSlides - this.slidesToShowCarousel1);
@@ -112,10 +121,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   getPaginationDots1(): number[] {
-    return Array(Math.ceil(this.totalSlides / this.slidesToShowCarousel1)).fill(
-      0
-    );
-  }
+  return Array(Math.ceil(this.getAllImages().length / this.slidesToShowCarousel1)).fill(0);
+}
 
   getCurrentPaginationIndex1(): number {
     return Math.floor(this.currentSlide / this.slidesToShowCarousel1);
@@ -158,38 +165,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     },
   ];
 
-  newsItems: NewsItem[] = [
-    {
-      title: 'รายระเอียด',
-      image:
-        'https://files.wp.thaipbs.or.th/theactive/2021/11/AN211114-%E0%B8%8A%E0%B9%88%E0%B8%A7%E0%B8%A2%E0%B8%8A%E0%B8%B2%E0%B8%A7%E0%B8%99%E0%B8%B2.jpg',
-      description:'รายละเอียดข่าวสารและการอัพเดทโครงการต่างๆ ที่เกี่ยวข้องกับการดำเนินงาน',
-      source: 'โดย บก...',
-      date: '18/06/2025',
-    },
-    {
-      title: 'รายระเอียด',
-      image: 'https://media.readthecloud.co/wp-content/uploads/2018/12/30081511/activities-alive-harvest-trip-feature.jpg',
-      description: 'ข้อมูลสำคัญเกี่ยวกับการพัฒนาและความก้าวหน้าของโครงการในช่วงที่ผ่านมา',
-      source: 'โดย บก...',
-      date: '17/06/2025',
-    },
-    {
-      title: 'รายระเอียด',
-      image:'https://image.bangkokbiznews.com/uploads/images/md/2022/10/tCmkCFtTMT0MivJrDHhc.webp?x-image-process=style/LG',
-      description:'อัพเดทล่าสุดเกี่ยวกับการดำเนินงานและแผนการในอนาคตของโครงการ',
-      source: 'โดย บก...',
-      date: '16/06/2025',
-    },
-    {
-      title: 'รายระเอียด',
-      image: 'https://mpics.mgronline.com/pics/Images/564000010852901.JPEG',
-      description: 'ข่าวประชาสัมพันธ์และความคืบหน้าของกิจกรรมต่างๆ ในโครงการ',
-      source: 'โดย บก...',
-      date: '15/06/2025',
-    },
-  ];
-
+ 
 
 
   // Add this method to the component class

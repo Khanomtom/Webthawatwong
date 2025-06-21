@@ -7,11 +7,11 @@ import {
   transition,
   animate,
 } from '@angular/animations';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ResearchUpdateDialogComponent } from '../research-update-dialog/research-update-dialog.component';
 import { ApiService } from '../../services/api/api.service';
-import { LoginResponse, Project } from '../../model/get_res';
+import { LoginResponse, News, Project } from '../../model/get_res';
 
 interface LoginForm {
   username: string;
@@ -65,7 +65,8 @@ export class NavbarComponent {
   currentUser: LoginResponse | null = null;
   allProjects: Project[] = [];
   loginError = '';
-
+   newsItems: News[] | null | undefined;
+  
   loginForm: LoginForm = {
     username: '',
     password: '',
@@ -101,7 +102,7 @@ export class NavbarComponent {
 
   researchers: string[] = [];
 
-  constructor(private router: Router, private apiService: ApiService) {
+  constructor(private router: Router, private apiService: ApiService, private route: ActivatedRoute) {
     // Check if user is already logged in (from localStorage)
     this.checkExistingLogin();
     this.getAllprojects();
@@ -110,10 +111,24 @@ export class NavbarComponent {
     this.apiService.getAllProjects().subscribe({
       next: (data) => {
         this.allProjects = data; // เก็บข้อมูลไว้ในตัวแปร
-        console.log('Projects:', this.allProjects); // debug
+        // console.log('Projects:', this.allProjects); // debug
       },
       error: (err) => {
         console.error('Error loading projects:', err);
+      },
+    });
+  }
+    getNews(): void {
+    const pid = this.route.snapshot.queryParamMap.get('pid');
+    console.log(pid);
+    
+    this.apiService.getNewsByProject(pid).subscribe({
+      next: (data) => {
+        this.newsItems = Array.isArray(data) ? data : [data]; // เก็บข้อมูลไว้ในตัวแปร
+        // console.log('News', this.newsItems); // debug
+      },
+      error: (err) => {
+        console.error('Error loading News:', err);
       },
     });
   }
@@ -134,8 +149,11 @@ export class NavbarComponent {
   // Navigation methods
   goToProject(pid: any): void {
     console.log('Selected researcher:',pid);
-    this.router.navigate( ['/project'],{ queryParams: { pid: pid } }     // พารามิเตอร์ที่ต้องการส่ง
-);
+      
+this.router.navigate(['/project'], { queryParams: { pid: pid } }).then(() => {
+  window.location.reload();
+
+});
   }
 
   toggleMobileMenu(): void {

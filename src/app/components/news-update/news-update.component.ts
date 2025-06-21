@@ -167,7 +167,7 @@ document: Document = document;
       error: err => console.error('เกิดข้อผิดพลาด', err)
     });
 
-    //this.onClose();
+    this.onClose();
   }
 
   private resetForm(): void {
