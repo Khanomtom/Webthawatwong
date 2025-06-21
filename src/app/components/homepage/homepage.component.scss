@@ -184,3 +184,43 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
+@keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+      opacity: 0;
+    }
+
+    .group:hover .transition-all {
+      transform: scale(1.05);
+    }
+
+    /* Custom gradient colors */
+    .stroke-gradient-blue {
+      stroke: url(#gradient-blue);
+    }
+    
+    .stroke-gradient-green {
+      stroke: url(#gradient-green);
+    }
+    
+    .stroke-gradient-purple {
+      stroke: url(#gradient-purple);
+    }
+    
+    .stroke-gradient-orange {
+      stroke: url(#gradient-orange);
+    }
+    
+    .stroke-gradient-pink {
+      stroke: url(#gradient-pink);
+    }

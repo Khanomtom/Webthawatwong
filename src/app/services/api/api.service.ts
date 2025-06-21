@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry, tap } from 'rxjs/operators';
 import { LoginResponse, Post, Project } from '../../model/get_res';
+import { Progress } from '../../model/getprogress';
 
 @Injectable({
   providedIn: 'root',
@@ -27,5 +28,9 @@ export class ApiService {
   }
    postNews(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/news`, data);
+  }
+
+    getProgress(): Observable<any> {
+    return this.http.get<Progress>(`${this.apiUrl}/progress`);
   }
 }
